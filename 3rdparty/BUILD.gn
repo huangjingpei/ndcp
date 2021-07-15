@@ -1,0 +1,121 @@
+import("//webrtc.gni")
+
+if (is_android) {
+  import("//build/config/android/config.gni")
+  import("//build/config/android/rules.gni")
+} else if (is_mac) {
+  import("//build/config/mac/rules.gni")
+} else if (is_ios) {
+  import("//build/config/ios/rules.gni")
+}
+defines = []
+config("config") {
+  defines += ["SDKWINDOWS_EXPORTS"]
+  if (is_mac || is_ios) {
+    cflags = [
+      "-Wno-deprecated-declarations",
+      "-Wno-reorder-ctor",
+      "-Wno-unused-value",
+      "-std=gnu90",
+      "-Wno-string-conversion",
+      "-Wno-unreachable-code",
+    ]
+  }
+
+  include_dirs = [
+    "./",
+    "./libuv/include",
+    "./libuv/src",
+    "./nlohmann",
+  ]
+  if(is_win){
+    include_dirs += [
+    ]
+    defines += [ "WIN" ]
+    include_dirs += [
+    ]
+    if (is_ios || is_mac) {
+      defines += [ "__APPLE__" ]
+    }
+  }
+
+  if (is_linux || is_android) {
+    defines += [
+      "__LINUX__",
+    ]
+    if (is_android) {
+      defines += [
+        "__ANDROID__",
+      ]
+    }
+  } else if (is_win) {   
+
+
+  }
+}
+
+static_library("libhttpparser") {
+    configs += [ ":config" ]
+    sources = [
+        "http-parser/http_parser.c",
+    ]
+    defines += [
+        "HTTP_PARSER_STRICT=1",
+    ]
+}
+
+
+static_library("libuv") {
+    configs += [ ":config" ]
+
+    sources = [
+        "libuv/src/fs-poll.c",
+        "libuv/src/idna.c",
+        "libuv/src/inet.c",
+        "libuv/src/unix/loop-watcher.c",
+        "libuv/src/random.c",
+        "libuv/src/strscpy.c",
+        "libuv/src/threadpool.c",
+        "libuv/src/timer.c",
+        "libuv/src/uv-common.c",
+        "libuv/src/uv-data-getter-setters.c",
+        "libuv/src/version.c",
+        "libuv/src/unix/async.c",
+        "libuv/src/unix/core.c",
+        "libuv/src/unix/dl.c",
+        "libuv/src/unix/fs.c",
+        "libuv/src/unix/getaddrinfo.c",
+        "libuv/src/unix/getnameinfo.c",
+        "libuv/src/unix/loop.c",
+        "libuv/src/unix/pipe.c",
+        "libuv/src/unix/poll.c",
+        "libuv/src/unix/process.c",
+        "libuv/src/unix/random-devurandom.c",
+        "libuv/src/unix/signal.c",
+        "libuv/src/unix/stream.c",
+        "libuv/src/unix/tcp.c",
+        "libuv/src/unix/thread.c",
+        "libuv/src/unix/tty.c",
+        "libuv/src/unix/udp.c",
+        "libuv/src/unix/proctitle.c",
+        "libuv/src/unix/bsd-ifaddrs.c",
+        "libuv/src/unix/kqueue.c",
+        "libuv/src/unix/random-getentropy.c",
+        "libuv/src/unix/darwin-proctitle.c",
+        "libuv/src/unix/darwin.c",
+        "libuv/src/unix/fsevents.c",
+    ]
+    defines += [
+        "_LARGEFILE_SOURCE",
+    ]
+}
+
+group("ndcp3rdparty") {
+    deps=[
+        ":libhttpparser",
+        ":libuv"
+        
+    ]
+
+}
+

@@ -1,0 +1,204 @@
+import("//webrtc.gni")
+
+if (is_android) {
+  import("//build/config/android/config.gni")
+  import("//build/config/android/rules.gni")
+} else if (is_mac) {
+  import("//build/config/mac/rules.gni")
+} else if (is_ios) {
+  import("//build/config/ios/rules.gni")
+}
+
+config("config") {
+  defines = ["SDKWINDOWS_EXPORTS"]
+  if (is_mac || is_ios) {
+    cflags = [
+      "-Wno-deprecated-declarations",
+      "-Wno-reorder-ctor",
+      "-Wno-unused-value",
+    ]
+  }
+
+  include_dirs = [
+    "./uvkits",
+    "./3rdparty",
+    "./3rdparty/libuv/include",
+    "./3rdparty/libuv/src",
+    "./3rdparty/nlohmann",
+  ]
+  if(is_win){
+    include_dirs += [
+    ]
+    defines += [ "WEBRTC_WIN", "CURL_STATICLIB", ]
+  }else{
+    include_dirs += [
+    ]
+    defines += [ "WEBRTC_POSIX" ]
+    if (is_ios || is_mac) {
+      defines += [ "WEBRTC_IOS" ]
+      defines += [ "WEBRTC_MAC" ]
+    }
+  }
+
+  if (is_linux || is_android) {
+    defines += [
+      "LINUX",
+      "WEBRTC_ANDROID",
+    ]
+    if (is_android) {
+      defines += [
+        "ANDROID",
+        "WEBRTC_ANDROID"
+      ]
+    }
+  } else if (is_win) {   
+
+
+  }
+}
+
+
+
+source_set("service") {
+  configs += [ ":config" ]
+  if (is_clang) {
+    configs -= [ "//build/config/clang:extra_warnings" ]
+    configs -= [ "//build/config/compiler:no_exceptions" ]
+    configs += [ "//build/config/compiler:no_chromium_code" ]
+    configs += [ "//build/config/compiler:default_warnings" ]
+    configs -= [ "//build/config/compiler:chromium_code" ]
+  }
+  sources = [
+    "service/HttpConnection.h",
+    "service/HttpConnection.cpp",
+    "service/HttpServer.h",
+    "service/HttpServer.cpp",
+  ]
+
+  deps = [ "./3rdparty:ndcp3rdparty" ]
+}
+
+source_set("logger") {
+  configs += [ ":config" ]
+  if (true) {
+    if (is_mac ||is_ios) {
+      configs -= [ "//build/config/clang:extra_warnings" ]
+    }
+    configs -= [ "//build/config/compiler:no_exceptions" ]
+    configs += [ "//build/config/compiler:no_chromium_code" ]
+    configs += [ "//build/config/compiler:default_warnings" ]
+    configs -= [ "//build/config/compiler:chromium_code" ]
+
+  }
+
+  sources = [
+    "logger/ThreadTypes.h",
+    "logger/ThreadTypes.cpp",
+    "logger/Logging.h",
+    "logger/Logging.cpp",
+    "logger/StringBuilder.h",
+    "logger/StringBuilder.cpp",
+
+  ]
+
+}
+
+source_set("uvkits") {
+  configs += [ ":config" ]
+  if (true) {
+    if (is_mac ||is_ios) {
+      configs -= [ "//build/config/clang:extra_warnings" ]
+    }
+    configs -= [ "//build/config/compiler:no_exceptions" ]
+    configs += [ "//build/config/compiler:no_chromium_code" ]
+    configs += [ "//build/config/compiler:default_warnings" ]
+    configs -= [ "//build/config/compiler:chromium_code" ]
+
+  }
+
+  sources = [
+    "uvkits/Exception.h",
+    "uvkits/Exception.cpp",
+    "uvkits/Looper.h",
+    "uvkits/Looper.cpp",
+    "uvkits/Timer.h",
+    "uvkits/Timer.cpp",
+    "uvkits/UdpSocket.h",
+    "uvkits/UdpSocket.cpp",
+  ]
+}
+if (is_win) {
+  shared_library("libtuyandcp") {
+    #complete_static_lib = true
+    configs += [ ":config" ]
+    if (true) {
+      if (is_mac ||is_ios) {
+        configs -= [ "//build/config/clang:extra_warnings" ]
+      }
+      configs -= [ "//build/config/compiler:no_exceptions" ]
+      configs += [ "//build/config/compiler:no_chromium_code" ]
+      configs += [ "//build/config/compiler:default_warnings" ]
+      configs -= [ "//build/config/compiler:chromium_code" ]
+    }
+
+    
+    deps = [
+      ":logger",
+      ":service",
+      ":uvkits",
+
+    ]
+  }
+} else if (is_ios || is_android) {
+  static_library("libtuyandcp") {
+    deps = []
+    if (!build_with_chromium) {
+      if (is_android) {
+        deps += [ "./platform/android:tuyartc_jni" ]
+        deps += [ "./platform/android:rtcsdkapi" ]
+      }
+      if (is_ios) {
+        deps += [ "./platform/ios:tuyartc_objc" ]
+      }
+      sources = [
+        "platform/dummy/dummy.cpp",
+      ]
+    }
+  }
+} else {
+  static_library("libtuyandcp") {
+    #complete_static_lib = true
+    configs += [ ":config" ]
+    if (true) {
+      if (is_mac ||is_ios) {
+        configs -= [ "//build/config/clang:extra_warnings" ]
+      }
+      configs -= [ "//build/config/compiler:no_exceptions" ]
+      configs += [ "//build/config/compiler:no_chromium_code" ]
+      configs += [ "//build/config/compiler:default_warnings" ]
+      configs -= [ "//build/config/compiler:chromium_code" ]
+    }
+
+    deps = [
+      ":logger",
+      ":service",
+      ":uvkits",
+      ":testHttp",
+    ]
+    if (is_mac) {
+      sources = [
+        "./api/NdcpInstance.cpp",
+        "./api/NdcpInstance.h",
+      ]
+    }
+  }
+}
+
+rtc_executable ("testHttp") {
+  configs += [ ":config" ]
+  sources = [
+    "test/TestHttpServer.cpp",
+  ]
+  deps = []
+  include_dirs = []
+}
