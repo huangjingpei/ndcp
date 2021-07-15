@@ -36,8 +36,7 @@ typedef HRESULT(WINAPI* RTC_SetThreadDescription)(HANDLE hThread,
 PlatformThreadId CurrentThreadId() {
 #if defined(WIN)
   return GetCurrentThreadId();
-#elif defined(__POSIX__)
-#if defined(__APPLE__)
+#elif defined(__APPLE__)
   return pthread_mach_thread_np(pthread_self());
 #elif defined(__ANDROID__)
   return gettid();
@@ -51,8 +50,6 @@ PlatformThreadId CurrentThreadId() {
   // Default implementation for nacl and solaris.
   return reinterpret_cast<PlatformThreadId>(pthread_self());
 #endif
-#endif  // defined(__POSIX__)
-  return -1;
 }
 
 PlatformThreadRef CurrentThreadRef() {
