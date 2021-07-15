@@ -29,7 +29,7 @@ config("config") {
   if(is_win){
     include_dirs += [
     ]
-    defines += [ "WEBRTC_WIN", "CURL_STATICLIB", ]
+    defines += [ "WIN", "CURL_STATICLIB", ]
   }else{
     include_dirs += [
     ]
@@ -148,6 +148,10 @@ if (is_win) {
       ":uvkits",
 
     ]
+    sources = [
+        "./api/NdcpInstance.cpp",
+        "./api/NdcpInstance.h",
+    ]
   }
 } else if (is_ios || is_android) {
   static_library("libtuyandcp") {
@@ -183,7 +187,6 @@ if (is_win) {
       ":logger",
       ":service",
       ":uvkits",
-      ":testHttp",
     ]
     if (is_mac) {
       sources = [
@@ -199,6 +202,10 @@ rtc_executable ("testHttp") {
   sources = [
     "test/TestHttpServer.cpp",
   ]
-  deps = []
+  deps = [
+    ":logger",
+    ":service",
+    ":uvkits",
+  ]
   include_dirs = []
 }

@@ -33,7 +33,7 @@
 #include <mach/mach_time.h>
 #endif
 
-#if defined(WEBRTC_WIN)
+#if defined(WIN)
 // clang-format off
 // clang formatting would put <windows.h> last,
 // which leads to compilation failure.
@@ -114,19 +114,19 @@ LogMessage::LogMessage(const char* file,
   if (timestamp_) {
 	struct tm tm;
     struct timeval tv;
-    #if defined(__APPLE__)
+#if defined(__APPLE__)
     int64_t time = SystemTimeMillis();
     int second = time/1000;
     int ms = time % 1000;
     tv.tv_usec = ms;
     gmtime_r((const time_t *)(&second), &tm);
+#elif defined(WIN)
+    time_t now = time(nullptr);
+    tm = *localtime(&now);
     #else
       gettimeofday(&tv, NULL);
       localtime_r(&tv.tv_sec, &tm);
     #endif
-
-
-
     char timestamp[50];  // Maximum string length of an int64_t is 20.
     int len = snprintf(timestamp, sizeof(timestamp), "%4d-%02d-%02d %02d:%02d:%02d:%03d",
     		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
@@ -140,7 +140,7 @@ LogMessage::LogMessage(const char* file,
   }
 
   if (file != nullptr) {
-#if defined(WEBRTC_ANDROID)
+#if defined(__ANDROID__)
     tag_ = FilenameFromPath(file);
     print_stream_ << "(line " << line << "): ";
 #else
@@ -173,7 +173,7 @@ LogMessage::LogMessage(const char* file,
         }
         break;
       }
-#endif  // WEBRTC_WIN
+#endif  // WIN
       default:
         break;
     }
@@ -472,7 +472,7 @@ int64_t LogMessage::SystemTimeNanos() {
   ticks = now + (num_wrap_timegettime << 32);
   // TODO(deadbeef): Calculate with nanosecond precision. Otherwise, we're
   // just wasting a multiply and divide when doing Time() on Windows.
-  ticks = ticks * kNumNanosecsPerMillisec;
+  ticks = ticks * 1000000L;
 #else
 #error Unsupported platform.
 #endif

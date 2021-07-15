@@ -63,7 +63,6 @@ PlatformThreadRef CurrentThreadRef() {
 #elif defined(__POSIX__)
   return pthread_self();
 #endif
-  return nullptr;
 }
 
 bool IsThreadRefEqual(const PlatformThreadRef& a, const PlatformThreadRef& b) {

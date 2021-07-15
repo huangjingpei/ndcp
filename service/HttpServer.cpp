@@ -82,9 +82,3 @@ int HttpServer::processNewConnection(uv_stream_t *handle, int status) {
 } //namespace oscp
 
 
-int main() {
-	ndcp::HttpServer *server = new ndcp::HttpServer;
-	server->start("0.0.0.0", 8090);
-	ndcp::Looper::loop();
-	return 0;
-}

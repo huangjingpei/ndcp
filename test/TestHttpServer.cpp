@@ -1,6 +1,15 @@
 #include <stdio.h>
-
-int main(void) {
-    printf("this is a test.");
-    return 0;
+#include "../uvkits/Looper.h"
+#include "../service/HttpServer.h"
+#pragma comment(lib, "psapi")
+#pragma comment(lib, "user32")
+#pragma comment(lib, "advapi32")
+#pragma comment(lib, "iphlpapi")
+#pragma comment(lib, "userenv")
+#pragma comment(lib, "ws2_32")
+int main() {
+  ndcp::HttpServer* server = new ndcp::HttpServer;
+  server->start("0.0.0.0", 8090);
+  ndcp::Looper::loop();
+  return 0;
 }
