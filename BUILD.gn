@@ -16,6 +16,7 @@ config("config") {
       "-Wno-deprecated-declarations",
       "-Wno-reorder-ctor",
       "-Wno-unused-value",
+      "-Wno-return-type",
     ]
   }
 

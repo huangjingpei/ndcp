@@ -62,6 +62,8 @@ PlatformThreadRef CurrentThreadRef() {
   return zx_thread_self();
 #elif defined(__POSIX__)
   return pthread_self();
+#elif defined(__APPLE__)
+  return pthread_self();
 #endif
 }
 
